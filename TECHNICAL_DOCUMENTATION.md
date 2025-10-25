@@ -372,5 +372,3 @@ end if
 - **Visibilità**: Controllo visibilità utenti e oggetti
 
 ---
-
-*Documentazione tecnica generata dall'analisi del codice sorgente*

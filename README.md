@@ -162,5 +162,3 @@ Il progetto sembra essere in uno stato avanzato di sviluppo con tutte le funzion
 Progetto proprietario - Tutti i diritti riservati.
 
 ---
-
-*Documentazione generata automaticamente dall'analisi del codice sorgente*
