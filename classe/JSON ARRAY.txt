@@ -1,0 +1,15 @@
+var t = {};
+
+for(var i=0;i<1;i++) {
+    var _main = {};
+    var valori = {};
+
+    valori['x'] = '1px';
+    valori['y'] = '2px';
+    valori['z'] = '3px';
+    _main['values'] = valori;
+
+    t[i] = _main;
+}
+
+JSON.stringify(t);

@@ -1,0 +1,441 @@
+#tag WebPage
+Begin WebDialog wdModificaSpecie
+   Compatibility   =   ""
+   ControlID       =   ""
+   Enabled         =   True
+   Height          =   82
+   Index           =   0
+   Indicator       =   0
+   LayoutDirection =   0
+   LayoutType      =   0
+   Left            =   0
+   LockBottom      =   False
+   LockHorizontal  =   False
+   LockLeft        =   False
+   LockRight       =   False
+   LockTop         =   False
+   LockVertical    =   False
+   TabIndex        =   0
+   Top             =   0
+   Visible         =   True
+   Width           =   363
+   _mDesignHeight  =   0
+   _mDesignWidth   =   0
+   _mName          =   ""
+   _mPanelIndex    =   -1
+   Begin WebButton cmdAnnulla
+      AllowAutoDisable=   False
+      Cancel          =   False
+      Caption         =   "Cancel"
+      ControlID       =   ""
+      Default         =   False
+      Enabled         =   True
+      Height          =   22
+      Index           =   -2147483648
+      Indicator       =   ""
+      Left            =   243
+      LockBottom      =   False
+      LockedInPosition=   False
+      LockHorizontal  =   False
+      LockLeft        =   True
+      LockRight       =   False
+      LockTop         =   True
+      LockVertical    =   False
+      Scope           =   0
+      TabIndex        =   1
+      Tooltip         =   ""
+      Top             =   48
+      Visible         =   True
+      Width           =   100
+      _mPanelIndex    =   -1
+   End
+   Begin WebButton cmdModifica
+      AllowAutoDisable=   False
+      Cancel          =   False
+      Caption         =   "Modify"
+      ControlID       =   ""
+      Default         =   False
+      Enabled         =   True
+      Height          =   22
+      Index           =   -2147483648
+      Indicator       =   ""
+      Left            =   131
+      LockBottom      =   False
+      LockedInPosition=   False
+      LockHorizontal  =   False
+      LockLeft        =   True
+      LockRight       =   False
+      LockTop         =   True
+      LockVertical    =   False
+      Scope           =   0
+      TabIndex        =   2
+      Tooltip         =   ""
+      Top             =   48
+      Visible         =   True
+      Width           =   100
+      _mPanelIndex    =   -1
+   End
+   Begin WebLabel lbNome
+      Bold            =   False
+      ControlID       =   ""
+      Enabled         =   True
+      FontName        =   ""
+      FontSize        =   0.0
+      Height          =   22
+      Index           =   -2147483648
+      Indicator       =   ""
+      Italic          =   False
+      Left            =   20
+      LockBottom      =   False
+      LockedInPosition=   False
+      LockHorizontal  =   False
+      LockLeft        =   True
+      LockRight       =   False
+      LockTop         =   True
+      LockVertical    =   False
+      Multiline       =   False
+      Scope           =   0
+      TabIndex        =   3
+      Text            =   "Name"
+      TextAlignment   =   0
+      TextColor       =   &c00000000
+      Tooltip         =   ""
+      Top             =   14
+      Underline       =   False
+      Visible         =   True
+      Width           =   59
+      _mPanelIndex    =   -1
+   End
+   Begin WebTextField txtNome
+      AllowAutoComplete=   True
+      AllowSpellChecking=   True
+      Caption         =   ""
+      ControlID       =   ""
+      Enabled         =   True
+      FieldType       =   0
+      Height          =   22
+      Hint            =   ""
+      Index           =   -2147483648
+      Indicator       =   ""
+      Left            =   91
+      LockBottom      =   False
+      LockedInPosition=   False
+      LockHorizontal  =   False
+      LockLeft        =   True
+      LockRight       =   False
+      LockTop         =   True
+      LockVertical    =   False
+      MaximumCharactersAllowed=   0
+      ReadOnly        =   False
+      Scope           =   0
+      TabIndex        =   4
+      Text            =   ""
+      TextAlignment   =   ""
+      Tooltip         =   ""
+      Top             =   14
+      Visible         =   True
+      Width           =   252
+      _mPanelIndex    =   -1
+   End
+End
+#tag EndWebPage
+
+#tag WindowCode
+	#tag Event
+		Sub Close()
+		  if Session.Available then
+		    Session.wdModificaSpecieAperto = False
+		  end if
+		End Sub
+	#tag EndEvent
+
+	#tag Event
+		Sub Open()
+		  if Session.Available then
+		    Session.wdModificaSpecieAperto = True
+		  end if
+		  
+		  CentraWebDialog(self)
+		End Sub
+	#tag EndEvent
+
+	#tag Event
+		Sub Shown()
+		  if connettiDB then
+		    dim sql As String
+		    sql = "SELECT name FROM species WHERE idspecies="+lstwdSpecie.RowTag(lstwdSpecie.ListIndex)
+		    if db.Error Then
+		      MsgBox ErroreDatabase
+		      exit sub
+		    end if
+		    dim rs As RecordSet
+		    rs = db.SQLSelect(sql)
+		    txtNome.Text = DeApici(rs.IdxField(1).StringValue)
+		    rs.Close
+		  end if
+		End Sub
+	#tag EndEvent
+
+
+	#tag Property, Flags = &h0
+		lstwdSpecie As WebListBox
+	#tag EndProperty
+
+
+#tag EndWindowCode
+
+#tag Events cmdAnnulla
+	#tag Event
+		Sub Pressed()
+		  Self.Close
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events cmdModifica
+	#tag Event
+		Sub Pressed()
+		  //Controlli
+		  if txtNome.Text="" then
+		    MsgBox "The name field is empty."
+		    txtNome.SetFocus
+		    exit sub
+		  end if
+		  
+		  
+		  //Provo a connettermi al db
+		  if connettiDB Then
+		    dim sql As String
+		    sql = "UPDATE species SET name='" + Apici(txtNome.Text) + "' WHERE idspecies="+lstwdSpecie.RowTag(lstwdSpecie.ListIndex)
+		    //Eseguo query e controllo per errori
+		    db.SQLExecute(sql)
+		    if db.Error Then
+		      MsgBox ErroreDatabase
+		      exit sub
+		    end if
+		    //Mostro avviso di inserimento, aggiorno listbox delle speci e chiudo la finestra.
+		    MsgBox "The species has been modified with successful."
+		    AggiornaLstSpecie(lstwdSpecie)
+		    Self.Close
+		  Else
+		    MsgBox ErroreDatabase
+		    exit sub
+		  end if
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag ViewBehavior
+	#tag ViewProperty
+		Name="_mPanelIndex"
+		Visible=false
+		Group="Behavior"
+		InitialValue="-1"
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="ControlID"
+		Visible=false
+		Group="Behavior"
+		InitialValue=""
+		Type="String"
+		EditorType="MultiLineEditor"
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="LayoutType"
+		Visible=true
+		Group="Behavior"
+		InitialValue="LayoutTypes.Fixed"
+		Type="LayoutTypes"
+		EditorType="Enum"
+		#tag EnumValues
+			"0 - Fixed"
+			"1 - Flex"
+		#tag EndEnumValues
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="_mDesignHeight"
+		Visible=false
+		Group="Behavior"
+		InitialValue=""
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="_mDesignWidth"
+		Visible=false
+		Group="Behavior"
+		InitialValue=""
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="_mName"
+		Visible=false
+		Group="Behavior"
+		InitialValue=""
+		Type="String"
+		EditorType="MultiLineEditor"
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="TabIndex"
+		Visible=true
+		Group="Visual Controls"
+		InitialValue=""
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Indicator"
+		Visible=false
+		Group="Visual Controls"
+		InitialValue=""
+		Type="WebUIControl.Indicators"
+		EditorType="Enum"
+		#tag EnumValues
+			"0 - Default"
+			"1 - Primary"
+			"2 - Secondary"
+			"3 - Success"
+			"4 - Danger"
+			"5 - Warning"
+			"6 - Info"
+			"7 - Light"
+			"8 - Dark"
+			"9 - Link"
+		#tag EndEnumValues
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="LayoutDirection"
+		Visible=true
+		Group="WebView"
+		InitialValue="LayoutDirections.LeftToRight"
+		Type="LayoutDirections"
+		EditorType="Enum"
+		#tag EnumValues
+			"0 - LeftToRight"
+			"1 - RightToLeft"
+			"2 - TopToBottom"
+			"3 - BottomToTop"
+		#tag EndEnumValues
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Enabled"
+		Visible=true
+		Group="Behavior"
+		InitialValue="True"
+		Type="Boolean"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Height"
+		Visible=true
+		Group="Behavior"
+		InitialValue="300"
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Index"
+		Visible=false
+		Group="ID"
+		InitialValue=""
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Left"
+		Visible=false
+		Group="Position"
+		InitialValue=""
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="LockBottom"
+		Visible=false
+		Group="Behavior"
+		InitialValue="False"
+		Type="Boolean"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="LockHorizontal"
+		Visible=false
+		Group="Behavior"
+		InitialValue=""
+		Type="Boolean"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="LockLeft"
+		Visible=false
+		Group="Behavior"
+		InitialValue="False"
+		Type="Boolean"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="LockRight"
+		Visible=false
+		Group="Behavior"
+		InitialValue="False"
+		Type="Boolean"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="LockTop"
+		Visible=false
+		Group="Behavior"
+		InitialValue="False"
+		Type="Boolean"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="LockVertical"
+		Visible=false
+		Group="Behavior"
+		InitialValue=""
+		Type="Boolean"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Name"
+		Visible=true
+		Group="ID"
+		InitialValue=""
+		Type="String"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Super"
+		Visible=true
+		Group="ID"
+		InitialValue=""
+		Type="String"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Top"
+		Visible=false
+		Group="Position"
+		InitialValue=""
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Visible"
+		Visible=false
+		Group="Behavior"
+		InitialValue="True"
+		Type="Boolean"
+		EditorType=""
+	#tag EndViewProperty
+	#tag ViewProperty
+		Name="Width"
+		Visible=true
+		Group="Behavior"
+		InitialValue="300"
+		Type="Integer"
+		EditorType=""
+	#tag EndViewProperty
+#tag EndViewBehavior

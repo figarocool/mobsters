@@ -1,0 +1,165 @@
+<html>
+<head>
+<script type="text/javascript" language="javascript">
+//variabili per tenere traccia della differenza tra il cursore sull'immagine ed il top ed il left su cui ho fatto click
+var diffx = 0;
+var diffy = 0;
+var immagineSelezionata;
+arrImm=new Array();
+elemento=new Array("PezzoArma1", "PezzoArma2", "PezzoArma3");
+
+document.body.onkeypress="spostaTramiteTastiera('divMadre',event)";
+
+function modificaStile(idElemento, event){
+	document.getElementById(idElemento).style.left=0;
+	document.getElementById(idElemento).style.top=0;
+	document.getElementById(idElemento).style.left=(parseInt(event.screenX)-diffx)+"px";
+	document.getElementById(idElemento).style.top=(parseInt(event.screenY)-diffy)+"px";
+}
+    
+function calcolaDifferenza(idElemento, event){
+	//Calcolo posizione x della div
+	xcor=parseInt(document.getElementById(idElemento).style.left);
+	//Calcolo posizione y della div
+	ycor=parseInt(document.getElementById(idElemento).style.top);
+	//calcolo la differenza tra il punto in cui ho premuto il mouse e la div
+	diffx=event.screenX-xcor;
+	diffy=event.screenY-ycor;
+}
+      
+function nonMuovereFuori(idElemento, idDivMadre){
+	//Prendo tutti i dati sulle div e le immagini che richiamo
+	var leftElemento=parseInt(document.getElementById(idElemento).style.left);
+	var topElemento=parseInt(document.getElementById(idElemento).style.top);
+	var altezzaElemento=parseInt(document.getElementById(idElemento).style.height);
+	var larghezzaElemento=parseInt(document.getElementById(idElemento).style.width);
+	var leftMadre=parseInt(document.getElementById(idDivMadre).style.left);
+	var topMadre=parseInt(document.getElementById(idDivMadre).style.top);
+	var altezzaMadre=parseInt(document.getElementById(idDivMadre).style.height);
+	var larghezzaMadre=parseInt(document.getElementById(idDivMadre).style.width);
+	//controllo nel caso l'immagine vada troppo a sinistra, in tal caso il left sarà quello della div madre
+	if (leftElemento < 0) {
+		document.getElementById(idElemento).style.left = 0+"px";
+	}
+	//controllo nel caso l'immagine vada troppo in alto, in tal caso il top sarà quello della div madre
+	if (topElemento < 0) {
+		document.getElementById(idElemento).style.top = 0+"px";
+	}
+	//controllo nel caso l'immagine vada troppo in basso, in tal caso il top sarà quello della div madre + altezza della div madre - altezza immagine
+	if ((topElemento+altezzaElemento) > (altezzaMadre)) {
+		document.getElementById(idElemento).style.top = (altezzaMadre-altezzaElemento)+"px";
+	}
+	//controllo nel caso l'immagine vada troppo a destra, in tal caso il left sarà quello della div madre + la larghezza della div madre - larghezza immagine
+	if ((leftElemento+larghezzaElemento) > (larghezzaMadre)) {
+		document.getElementById(idElemento).style.left = (larghezzaMadre-larghezzaElemento)+"px";
+	}
+}
+                
+function aumentaZindex(){
+	document.getElementById(immagineSelezionata).style.zIndex += 1;
+}
+                  
+function diminuisciZindex(){
+	if (document.getElementById(immagineSelezionata).style.zIndex>0) {
+		document.getElementById(immagineSelezionata).style.zIndex -= 1;
+	}
+}
+                      
+function spostaTramiteTastiera(idDivMadre, e){
+	//Prendo tutti i dati sulle div e le immagini che richiamo
+	var leftElemento=parseInt(document.getElementById(immagineSelezionata).style.left);
+	var topElemento=parseInt(document.getElementById(immagineSelezionata).style.top);
+	var altezzaElemento=parseInt(document.getElementById(immagineSelezionata).style.height);
+	var larghezzaElemento=parseInt(document.getElementById(immagineSelezionata).style.width);
+	var leftMadre=parseInt(document.getElementById(idDivMadre).style.left);
+	var topMadre=parseInt(document.getElementById(idDivMadre).style.top);
+	var altezzaMadre=parseInt(document.getElementById(idDivMadre).style.height);
+	var larghezzaMadre=parseInt(document.getElementById(idDivMadre).style.width);
+	//Freccia sinistra
+	if (e.keyCode==37){
+		if (leftElemento > 0) {
+			document.getElementById(immagineSelezionata).style.left = (parseInt(document.getElementById(immagineSelezionata).style.left)-1)+"px";
+		}
+	}
+	//Freccia in alto
+   	if (e.keyCode==38){
+		if (topElemento > 0) {
+			document.getElementById(immagineSelezionata).style.top = (parseInt(document.getElementById(immagineSelezionata).style.top)-1)+"px";
+		}
+	}
+	//Freccia destra
+	if (e.keyCode==39){
+		if ((leftElemento+larghezzaElemento) < (larghezzaMadre)) {
+			document.getElementById(immagineSelezionata).style.left = (parseInt(document.getElementById(immagineSelezionata).style.left)+1)+"px";
+		}
+	}
+	//Freccia in basso
+	if (e.keyCode==40){
+		if ((topElemento+altezzaElemento) < (altezzaMadre)) {
+			document.getElementById(immagineSelezionata).style.top = (parseInt(document.getElementById(immagineSelezionata).style.top)+1)+"px";
+		}
+	}
+}
+
+function tornaPosizioni(idElemento){
+	var i=0;
+	var len=0;
+	var t = {};
+	if (idElemento instanceof Array) {
+		dimElem=idElemento.length;
+		for (i=0; i<=dimElem-1; i++){
+
+			var valori = {};
+			valori["id"] = idElemento[i];
+			valori["left"] = parseInt(document.getElementById(idElemento[i]).style.left);
+			valori["top"] = parseInt(document.getElementById(idElemento[i]).style.top);
+			valori["zindex"] = document.getElementById(idElemento[i]).style.zIndex;
+			t[i] = valori;	
+		}
+	}
+	else {
+		var valori = {};
+		valori["id"] = idElemento;
+		valori["left"] = parseInt(document.getElementById(idElemento).style.left);
+		valori["top"] = parseInt(document.getElementById(idElemento).style.top);
+		valori["zindex"] = document.getElementById(idElemento).style.zIndex;
+		t[i] = valori;
+	}
+	var myJSON = JSON.stringify(t);
+	return myJSON;
+}
+
+function eliminaImmagine(idElemento){
+	var index;
+	index=elemento.indexOf(idElemento);
+	elemento.splice(index, 1);
+	var tagImg;
+	tagImg = document.getElementById(idElemento);
+	tagImg.parentNode.removeChild(tagImg);
+}
+
+
+
+function EliminaTutteLeImmagini(idDiv){
+	elemento=[];
+	document.getElementById(idDiv).innerHTML = '';
+}
+</script>
+</head>
+<body onkeydown="spostaTramiteTastiera('DivMadre', event)">
+	<div style="background-color: #000; height: 500px; width: 500px; position: absolute; left: 50px; top: 50px;" id="divMadre" onkeydown="spostaTramiteTastiera('divMadre',event);">	
+		<img id="PezzoArma1" onmousedown="immagineSelezionata='PezzoArma1'" ondragstart="calcolaDifferenza('PezzoArma1', event)" ondragend="modificaStile('PezzoArma1', event); nonMuovereFuori('PezzoArma1','divMadre')" style="position: absolute; top: 0px; left: 0px; height: 128px; width: 128px; z-index: 0;" src="cane.png" alt="cane"></img>
+		<img id="PezzoArma2" onmousedown="immagineSelezionata='PezzoArma2'" ondragstart="calcolaDifferenza('PezzoArma2', event)" ondragend="modificaStile('PezzoArma2', event); nonMuovereFuori('PezzoArma2','divMadre')" style="position: absolute; top: 50px; left: 0px; height: 128px; width: 128px; z-index: 0;" src="gatto.jpg" alt="gatto"></img>
+		<img id="PezzoArma3" onmousedown="immagineSelezionata='PezzoArma3'" ondragstart="calcolaDifferenza('PezzoArma3', event)" ondragend="modificaStile('PezzoArma3', event); nonMuovereFuori('PezzoArma3','divMadre')" style="position: absolute; top: 150px; left: 0px; height: 128px; width: 128px; z-index: 0;" src="topo.jpg" alt="topo"></img>
+	</div>
+	<!-- Bottone per aumentare z-index -->
+	<button style="width: 80px; height: 22px;" onclick="aumentaZindex()">+</button>
+	<!-- Bottone per diminuire z-index -->
+	<button style="width: 80px; height: 22px;" onclick="diminuisciZindex()">-</button>
+	<button style="width: 80px; height: 22px;" onclick="tornaPosizioni(elemento)">Salva</button>
+	<button style="width: 80px; height: 22px;" onclick="eliminaImmagine(immagineSelezionata)">EliminaIMG</button>
+	<button onclick="EliminaTutteLeImmagini('divMadre')">Cancella tutto</button>
+</body>
+</html>
+
+
